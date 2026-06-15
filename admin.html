@@ -7,14 +7,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
-  <!-- Memuat library utama Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Memuat konfigurasi koneksi Anda -->
-  <script src="config.js"></script>
 </head>
 <body class="bg-gray-100">
 
-  <!-- SCREEN LOGIN ADMIN -->
   <div id="login-screen" class="min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-96 text-center">
       <h2 class="text-2xl font-bold mb-6">Login Admin</h2>
@@ -25,7 +21,6 @@
     </div>
   </div>
 
-  <!-- SCREEN DASHBOARD ADMIN -->
   <div id="dashboard" class="hidden min-h-screen">
     <div class="bg-blue-700 text-white p-4 flex justify-between items-center shadow-md">
       <h1 class="text-xl font-bold">Admin Dasbor</h1>
@@ -46,6 +41,17 @@
   </div>
 
   <script>
+    // =========================================================================
+    // 1. SETUP KONEKSI SUPABASE DI SINI (GANTI DENGAN KODE ANDA)
+    // =========================================================================
+    const SUPABASE_URL = 'https://lkzplpejlwagavakmeep.supabase.co/rest/v1/';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrenBscGVqbHdhZ2F2YWttZWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NjQ0ODIsImV4cCI6MjA5NzA0MDQ4Mn0.YgXbAFdCdqpjT6sEutw7wJwSwUWj9qFBtRvBniXCqiI';
+    
+    const _supabaseApp = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // =========================================================================
+    // 2. LOGIKA ADMIN
+    // =========================================================================
     if(localStorage.getItem('admin_login') === 'true') {
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
@@ -59,8 +65,7 @@
       
       if(!u || !p) { Swal.fire('Peringatan', 'Username dan Password tidak boleh kosong', 'warning'); return; }
       
-      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-      const { data, error } = await supabaseClient.from('admin_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+      const { data, error } = await _supabaseApp.from('admin_users').select('*').eq('username', u).eq('password', p).maybeSingle();
       
       if(error) { Swal.fire('Error', error.message, 'error'); return; }
       
@@ -76,8 +81,7 @@
     function logout() { localStorage.clear(); window.location.reload(); }
 
     async function loadData() {
-      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-      const { data, error } = await supabaseClient.from('ajuan').select('*').order('created_at', { ascending: false });
+      const { data, error } = await _supabaseApp.from('ajuan').select('*').order('created_at', { ascending: false });
       if(error || !data) return;
       let tbody = document.getElementById('table-body'); tbody.innerHTML = '';
       
@@ -103,8 +107,7 @@
     }
 
     async function ubahStatus(id, newStatus) {
-      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-      const { error } = await supabaseClient.from('ajuan').update({ status: newStatus }).eq('id_ajuan', id);
+      const { error } = await _supabaseApp.from('ajuan').update({ status: newStatus }).eq('id_ajuan', id);
       if(error) Swal.fire('Gagal', error.message, 'error');
       else Swal.fire('Sukses', 'Status berhasil diperbarui', 'success');
     }
