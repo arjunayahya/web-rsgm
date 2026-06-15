@@ -9,58 +9,56 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Memuat library utama Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Memuat konfigurasi koneksi Anda -->
-  <script src="config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.8/supabase.js"></script>
   
+  <script>
+    // =========================================================================
+    // REVISI LANGSUNG: MASUKKAN URL & KEY SUPABASE ANDA DI SINI
+    // =========================================================================
+    const SUPABASE_URL = 'https://xyz.supabase.co'; // Ganti dengan URL Anda
+    const SUPABASE_KEY = 'eyJ...';                 // Ganti dengan anon public key Anda
+
+    // Inisialisasi koneksi langsung di awal halaman agar pasti terdefinisi
+    const _supabaseApp = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+
   <style>
     body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; }
-    .main-container { max-width: 1024px; width: 100%; margin: 0 auto; min-height: 100vh; background: white; box-shadow: 0 4px 25px rgba(0,0,0,0.08); position: relative; padding-bottom: 80px; transition: all 0.3s; }
+    .main-container { max-width: 1024px; width: 100%; margin: 0 auto; min-height: 100vh; background: white; box-shadow: 0 4px 25px rgba(0,0,0,0.08); position: relative; padding-bottom: 80px; }
     .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 1024px; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); border-radius: 20px 20px 0 0; display: flex; justify-content: space-around; padding: 12px 0 15px 0; z-index: 50; }
-    .nav-item { text-align: center; color: #9ca3af; cursor: pointer; transition: 0.3s; width: 25%; font-size: 12px; }
+    .nav-item { text-align: center; color: #9ca3af; cursor: pointer; width: 25%; font-size: 12px; }
     .nav-item i { font-size: 20px; margin-bottom: 4px; display: block; }
     .nav-item.active { color: #0284c7; font-weight: bold; }
-    .nav-item.active i { transform: scale(1.1); color: #0284c7; }
-    .btn-primary { background: #0284c7; color: white; border-radius: 10px; transition: 0.3s; cursor: pointer;}
-    .btn-primary:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(2, 132, 199, 0.3); }
-    .btn-yellow { background: #fbbf24; color: #1e3a8a; font-weight: 600; border-radius: 10px; transition: 0.3s; }
-    .btn-yellow:hover { background: #f59e0b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3); }
-    .form-input { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; width: 100%; transition: 0.3s; background: #f9fafb; }
-    .form-input:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); outline: none; background: white; }
-    .page-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .btn-primary { background: #0284c7; color: white; border-radius: 10px; cursor: pointer; }
+    .btn-yellow { background: #fbbf24; color: #1e3a8a; font-weight: 600; border-radius: 10px; }
+    .form-input { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; width: 100%; background: #f9fafb; }
+    .page-section { display: none; }
     .page-section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-    .badge-menunggu { background: #fef3c7; color: #d97706; }
   </style>
 </head>
 <body>
 
-  <div id="loader" class="fixed inset-0 bg-white/90 z-[100] hidden items-center justify-center flex-col backdrop-blur-sm">
+  <div id="loader" class="fixed inset-0 bg-white/90 z-[100] hidden items-center justify-center flex-col">
     <div class="animate-spin rounded-full h-14 w-14 border-b-4 border-blue-600 mb-4"></div>
     <h3 class="text-blue-800 font-semibold text-lg" id="loader-text">Memproses Data...</h3>
   </div>
 
   <div id="app-container" class="main-container">
-    <div id="user-header" class="bg-gradient-to-r from-blue-700 to-blue-500 rounded-b-3xl pt-8 pb-10 px-6 sm:px-10 text-white shadow-md">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-2xl font-bold">RSGM Soelastri</h1>
-          <p class="text-blue-100 text-sm">Pelayanan Penelitian</p>
-        </div>
-        <button onclick="window.location.href='admin.html'" class="btn-yellow px-4 py-2 text-sm shadow-md flex items-center gap-2">
-          <i class="fas fa-shield-alt"></i> Admin
-        </button>
+    <div id="user-header" class="bg-gradient-to-r from-blue-700 to-blue-500 rounded-b-3xl pt-8 pb-10 px-6 sm:px-10 text-white shadow-md flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">RSGM Soelastri</h1>
+        <p class="text-blue-100 text-sm">Pelayanan Penelitian</p>
       </div>
+      <button onclick="window.location.href='admin.html'" class="btn-yellow px-4 py-2 text-sm shadow-md flex items-center gap-2">
+        <i class="fas fa-shield-alt"></i> Admin
+      </button>
     </div>
 
-    <!-- BERANDA -->
     <div id="beranda" class="page-section active px-5 sm:px-10 -mt-6 relative z-10">
       <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-10 text-center border border-gray-100">
         <div class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full inline-block mb-3"><i class="fas fa-check-circle mr-1"></i> Terintegrasi</div>
         <h2 class="text-2xl sm:text-4xl font-extrabold text-gray-800 leading-tight mb-2">Sistem Pelayanan<br><span class="text-yellow-500">Penelitian Digital</span></h2>
-        <p class="text-gray-500 text-sm sm:text-base mb-8 max-w-lg mx-auto">Ajukan izin penelitian, pantau status, dan kelola dokumen secara mudah dan transparan.</p>
         <div class="flex gap-4 justify-center mb-6 max-w-md mx-auto">
           <button onclick="switchTab('ajuan')" class="btn-yellow py-3 flex-1 text-sm sm:text-base"><i class="fas fa-edit mr-1"></i> Ajukan</button>
           <button onclick="switchTab('cek-status')" class="border border-blue-200 text-blue-600 rounded-xl py-3 flex-1 text-sm sm:text-base bg-blue-50 hover:bg-blue-100 font-semibold"><i class="fas fa-search mr-1"></i> Status</button>
@@ -84,23 +82,10 @@
           </div>
         </div>
       </div>
-
-      <div class="mt-8 px-1 mb-4">
-        <h3 class="font-bold text-red-700 mb-4 text-sm uppercase tracking-wide"><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> Penting</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-[#fffbeb] rounded-xl shadow-sm p-5 border border-yellow-300 border-l-4 border-l-red-500">
-            <h4 class="font-bold text-red-800 text-sm"><i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>CATAT ID AJUAN</h4>
-            <p class="text-xs text-gray-700 mt-2 leading-relaxed">ID Ajuan muncul setelah sukses submit ajuan. Simpan ID tersebut untuk pelacakan status ajuan.</p>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- AJUAN -->
     <div id="ajuan" class="page-section px-5 sm:px-10 pt-6">
       <h2 class="text-2xl font-bold text-blue-800 mb-1">Form Pengajuan</h2>
-      <p class="text-sm text-gray-500 mb-6">Lengkapi data diri dan unggah dokumen persyaratan</p>
-      
       <form id="formAjuan" onsubmit="submitAjuan(event)" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div><label class="block text-xs font-bold text-gray-700 mb-1">Nama Lengkap *</label><input type="text" id="inp_nama" required class="form-input"></div>
@@ -117,19 +102,7 @@
             <label class="block text-xs font-bold text-gray-700 mb-1">Bidang *</label>
             <select id="inp_bidang" required class="form-input bg-white" onchange="checkBidang()">
               <option value="">Pilih</option>
-              <option value="Farmasi">Farmasi</option>
-              <option value="SDM / Kepegawaian">SDM / Pegawai</option>
-              <option value="Rekam Medis">Rekam Medis</option>
-              <option value="Radiologi">Radiologi</option>
-              <option value="Laboratorium">Lab</option>
-              <option value="Poli Gigi Umum">Poli Umum</option>
-              <option value="Poli Spesialis">Poli Spesialis</option>
-              <option value="Maintenance">Maintenance</option>
-              <option value="IT">IT</option>
-              <option value="Gizi">Gizi</option>
-              <option value="Keperawatan">Keperawatan</option>
-              <option value="Sanitasi">Sanitasi</option>
-              <option value="Lainnya">Lainnya</option>
+              <option value="Farmasi">Farmasi</option><option value="SDM / Kepegawaian">SDM / Pegawai</option><option value="Rekam Medis">Rekam Medis</option><option value="Radiologi">Radiologi</option><option value="Laboratorium">Lab</option><option value="Poli Gigi Umum">Poli Umum</option><option value="Poli Spesialis">Poli Spesialis</option><option value="Maintenance">Maintenance</option><option value="IT">IT</option><option value="Gizi">Gizi</option><option value="Keperawatan">Keperawatan</option><option value="Sanitasi">Sanitasi</option><option value="Lainnya">Lainnya</option>
             </select>
             <input type="text" id="inp_bidang_lainnya" class="form-input mt-2 hidden" placeholder="Sebutkan bidang lainnya...">
           </div>
@@ -147,8 +120,8 @@
         </div>
         <div class="mb-6"><label class="block text-xs font-bold text-gray-700 mb-1">Judul Penelitian *</label><textarea id="inp_judul" required class="form-input" rows="2"></textarea></div>
 
-        <div class="bg-blue-50 p-4 rounded-xl mb-6 border border-blue-100 flex justify-between items-center">
-          <span class="text-sm font-bold text-blue-800">Estimasi Biaya:</span>
+        <div class="bg-blue-50 p-4 rounded-xl mb-6 font-bold text-blue-800 flex justify-between items-center">
+          <span>Estimasi Biaya:</span>
           <input type="text" id="estimasi_biaya" readonly class="bg-transparent border-none font-bold text-xl text-blue-700 text-right outline-none w-1/2" value="Rp 0">
         </div>
 
@@ -163,28 +136,25 @@
       </form>
     </div>
 
-    <!-- CEK STATUS -->
     <div id="cek-status" class="page-section px-5 sm:px-10 pt-6">
       <h2 class="text-2xl font-bold text-blue-800 mb-1">Lacak Status</h2>
-      <p class="text-sm text-gray-500 mb-6">Masukkan ID Ajuan Anda</p>
       <div class="flex gap-3 mb-8 max-w-lg mx-auto">
         <input type="text" id="inp_search" class="form-input flex-1 uppercase text-center font-bold tracking-wider" placeholder="RSGM-202606-0001">
         <button onclick="cariStatus()" class="btn-primary px-6"><i class="fas fa-search text-lg"></i></button>
       </div>
       <div id="result-status" class="hidden max-w-2xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-4">
+        <div class="bg-white rounded-2xl shadow-md border p-6 mb-4">
           <div class="flex justify-between items-start mb-4 border-b pb-4">
-            <div><p class="text-xs text-gray-400 font-bold mb-1 tracking-wider">ID AJUAN</p><h4 class="font-black text-blue-800 text-lg" id="res_id"></h4></div>
-            <span id="res_badge" class="status-badge badge-menunggu px-4 py-1.5 text-sm">Status</span>
+            <div><p class="text-xs text-gray-400 font-bold mb-1">ID AJUAN</p><h4 class="font-black text-blue-800 text-lg" id="res_id"></h4></div>
+            <span id="res_badge" class="status-badge px-4 py-1.5 text-sm">Status</span>
           </div>
           <h3 class="font-bold text-gray-800 text-xl mb-1" id="res_nama"></h3>
           <p class="text-sm text-gray-500 italic mb-6 bg-gray-50 p-3 rounded-lg border" id="res_judul"></p>
-          <div id="workflow-action" class="mt-4 pt-4 border-t border-dashed border-gray-300"></div>
+          <div id="workflow-action" class="mt-4 pt-4 border-t border-dashed"></div>
         </div>
       </div>
     </div>
 
-    <!-- PANDUAN -->
     <div id="panduan" class="page-section px-5 sm:px-10 pt-6 text-gray-700">
       <h2 class="text-2xl font-bold text-blue-800 mb-6">Panduan Penelitian</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -194,16 +164,9 @@
             <li>Surat permohonan dari Institusi</li><li>Proposal Penelitian Lengkap</li><li>Ethical Clearance Resmi</li><li>CV Peneliti</li>
           </ul>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border p-6">
-          <h3 class="font-bold text-blue-600 text-lg mb-3 border-b pb-2"><i class="fas fa-user-shield mr-2"></i> 2. Etika & Aturan</h3>
-          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600">
-            <li>Jas almamater & ID Card penelitian.</li><li>Salam, Sapa, Senyum.</li><li><i>Informed Consent</i> kepada responden.</li>
-          </ul>
-        </div>
       </div>
     </div>
 
-    <!-- BOTTOM NAV -->
     <div class="bottom-nav" id="bottom-nav">
       <div class="nav-item active" onclick="switchTab('beranda')"><i class="fas fa-home"></i>Beranda</div>
       <div class="nav-item" onclick="switchTab('ajuan')"><i class="fas fa-edit"></i>Ajuan</div>
@@ -226,8 +189,7 @@
       document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      if(event && event.currentTarget && event.currentTarget.classList) event.currentTarget.classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
     function hitungBiaya() {
@@ -242,42 +204,35 @@
       document.getElementById('estimasi_biaya').value = 'Rp ' + b.toLocaleString('id-ID');
     }
 
-   async function uploadSupabase(idAjuan, type, file) {
-  // Mengambil ekstensi file saja (misal: .pdf, .jpg)
-  const fileExtension = file.name.split('.').pop();
-  
-  // REVISI AMAN: Mengubah nama file menjadi bersih (contoh: RSGM-202606-0001/permohonan_1718432040.pdf)
-  // Cara ini menjamin tidak akan ada error "invalid path" meskipun file asli Anda penuh spasi atau tanda kurung.
-  const cleanPath = `${idAjuan}/${type}_${Date.now()}.${fileExtension}`;
-  
-  const { data, error } = await _supabaseApp.storage.from('berkas').upload(cleanPath, file);
-  if(error) throw error;
-  
-  const { data: urlData } = await _supabaseApp.storage.from('berkas').getPublicUrl(cleanPath);
-  return urlData.publicUrl;
-}
+    async function uploadSupabase(idAjuan, type, file) {
+      const fileExtension = file.name.split('.').pop();
+      // REVISI TOTAL: Mengubah tanda slash/path menjadi nama file datar (flat path) demi menghindari proteksi URL Supabase
+      const cleanPath = `${idAjuan}_${type}_${Date.now()}.${fileExtension}`;
+      
+      const { data, error } = await _supabaseApp.storage.from('berkas').upload(cleanPath, file);
+      if(error) throw error;
+      
+      const { data: urlData } = await _supabaseApp.storage.from('berkas').getPublicUrl(cleanPath);
+      return urlData.publicUrl;
+    }
 
     async function submitAjuan(e) {
       e.preventDefault();
-      let fPermohonan = document.getElementById('file_permohonan').files[0];
-      let fProposal = document.getElementById('file_proposal').files[0];
-      let fEthical = document.getElementById('file_ethical').files[0];
-      let fCV = document.getElementById('file_cv').files[0];
-      
+      if(!_supabaseApp) { Swal.fire('Error', 'Koneksi database Supabase gagal.', 'error'); return; }
+
       let valBidang = document.getElementById('inp_bidang').value;
       if(valBidang === 'Lainnya') {
         let extra = document.getElementById('inp_bidang_lainnya').value.trim();
         valBidang = extra ? 'Lainnya - ' + extra : 'Lainnya';
       }
 
-      showLoader('Mengirim Data ke Server...');
+      showLoader('Mengirim Data...');
       try {
         let date = new Date();
         let bln = ("0" + (date.getMonth() + 1)).slice(-2);
         let prefix = `RSGM-${date.getFullYear()}${bln}-`;
         
-        // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-        let { data: lastData } = await supabaseClient.from('ajuan').select('id_ajuan').like('id_ajuan', `${prefix}%`).order('created_at', {ascending: false}).limit(1);
+        let { data: lastData } = await _supabaseApp.from('ajuan').select('id_ajuan').like('id_ajuan', `${prefix}%`).order('created_at', {ascending: false}).limit(1);
         let urut = 1;
         if(lastData && lastData.length > 0) {
           let parts = lastData[0].id_ajuan.split('-');
@@ -285,17 +240,12 @@
         }
         let idAjuan = prefix + ("0000" + urut).slice(-4);
 
-        showLoader('Mengunggah Surat Permohonan...');
-        let lPermohonan = await uploadSupabase(idAjuan, 'permohonan', fPermohonan);
-        showLoader('Mengunggah Proposal...');
-        let lProposal = await uploadSupabase(idAjuan, 'proposal', fProposal);
-        showLoader('Mengunggah Ethical...');
-        let lEthical = await uploadSupabase(idAjuan, 'ethical', fEthical);
-        showLoader('Mengunggah CV...');
-        let lCV = await uploadSupabase(idAjuan, 'cv', fCV);
+        let lPermohonan = await uploadSupabase(idAjuan, 'permohonan', document.getElementById('file_permohonan').files[0]);
+        let lProposal = await uploadSupabase(idAjuan, 'proposal', document.getElementById('file_proposal').files[0]);
+        let lEthical = await uploadSupabase(idAjuan, 'ethical', document.getElementById('file_ethical').files[0]);
+        let lCV = await uploadSupabase(idAjuan, 'cv', document.getElementById('file_cv').files[0]);
 
-        showLoader('Menyimpan ke Database...');
-        let { error } = await supabaseClient.from('ajuan').insert([{
+        let { error } = await _supabaseApp.from('ajuan').insert([{
           id_ajuan: idAjuan, nama: document.getElementById('inp_nama').value,
           institusi: document.getElementById('inp_institusi').value, jenjang: document.getElementById('inp_jenjang').value,
           afiliasi: document.querySelector('input[name="afiliasi"]:checked').value, email: document.getElementById('inp_email').value,
@@ -315,46 +265,19 @@
 
     async function cariStatus() {
       let id = document.getElementById('inp_search').value.trim();
-      if(!id) return;
+      if(!id || !_supabaseApp) return;
       showLoader('Mencari...');
-      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-      const { data, error } = await supabaseClient.from('ajuan').select('*').eq('id_ajuan', id).maybeSingle();
+      const { data, error } = await _supabaseApp.from('ajuan').select('*').eq('id_ajuan', id).maybeSingle();
       hideLoader();
       
       let box = document.getElementById('result-status');
-      if(error || !data) { box.classList.add('hidden'); Swal.fire('Error', 'ID tidak ditemukan atau salah', 'error'); return; }
+      if(error || !data) { box.classList.add('hidden'); Swal.fire('Error', 'ID tidak ditemukan', 'error'); return; }
       
       document.getElementById('res_id').innerText = data.id_ajuan;
       document.getElementById('res_nama').innerText = data.nama;
       document.getElementById('res_judul').innerText = data.judul;
       document.getElementById('res_badge').innerText = data.status;
-      
-      let b = document.getElementById('res_badge');
-      b.className = 'status-badge ' + (data.status.includes('Selesai')?'bg-green-100 text-green-700' : data.status.includes('Proses')?'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700');
       box.classList.remove('hidden');
-      
-      let act = document.getElementById('workflow-action'); act.innerHTML = '';
-      if(data.status === 'Menunggu Pembayaran') {
-        act.innerHTML = `<div class="bg-blue-50 p-4 rounded-xl border border-blue-200"><h4 class="font-bold text-sm text-blue-800 mb-2"><i class="fas fa-wallet mr-2"></i> Upload Bukti Pembayaran</h4><input type="file" id="file_bayar" accept=".pdf,.jpg,.png" class="mb-3 block text-xs"><button onclick="uploadWorkflow('${data.id_ajuan}', 'bayar')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded font-bold w-full">Kirim Bukti Pembayaran</button></div>`;
-      } else if (data.status === 'Selesai') {
-        act.innerHTML = `<div class="bg-gray-50 p-4 rounded-xl border"><h4 class="font-bold text-sm text-gray-800 mb-2"><i class="fas fa-file-archive mr-2"></i> Upload Dokumen Penelitian</h4><input type="file" id="file_hasil" accept=".pdf,.doc,.docx" class="mb-3 block text-xs"><button onclick="uploadWorkflow('${data.id_ajuan}', 'hasil')" class="bg-blue-600 text-white text-xs px-4 py-2 rounded font-bold w-full">Upload Dokumen</button></div>`;
-      }
-    }
-
-    async function uploadWorkflow(id, type) {
-      let file = document.getElementById('file_'+type).files[0];
-      if(!file) return Swal.fire('Peringatan','Pilih file terlebih dahulu','warning');
-      showLoader('Mengunggah...');
-      try {
-        let link = await uploadSupabase(id, type, file);
-        let updateData = {};
-        if(type === 'bayar') { updateData.link_bayar = link; updateData.status = 'Diproses'; updateData.tgl_bayar = new Date().toISOString(); }
-        if(type === 'hasil') { updateData.link_hasil = link; updateData.status_hasil = 'Menunggu Verifikasi'; updateData.tgl_hasil = new Date().toISOString(); }
-        
-        // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-        await supabaseClient.from('ajuan').update(updateData).eq('id_ajuan', id);
-        hideLoader(); Swal.fire('Sukses','Berhasil diupload','success'); cariStatus();
-      } catch(e) { hideLoader(); Swal.fire('Error', e.message, 'error'); }
     }
 
     function showLoader(txt) { document.getElementById('loader-text').innerText=txt; document.getElementById('loader').style.display='flex'; }
