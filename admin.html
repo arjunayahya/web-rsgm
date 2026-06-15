@@ -14,32 +14,34 @@
   <div id="login-screen" class="min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-96 text-center">
       <h2 class="text-2xl font-bold mb-6">Login Admin</h2>
-      <input type="text" id="username" placeholder="Username" class="border p-3 w-full rounded mb-4">
-      <input type="password" id="password" placeholder="Password" class="border p-3 w-full rounded mb-6">
-      <button onclick="login()" class="bg-blue-600 text-white w-full py-3 rounded font-bold">Masuk</button>
-      <button onclick="window.location.href='index.html'" class="mt-4 text-blue-600 text-sm">Kembali ke Beranda</button>
+      <input type="text" id="username" placeholder="Username" class="border p-3 w-full rounded mb-4 focus:outline-none focus:border-blue-500">
+      <input type="password" id="password" placeholder="Password" class="border p-3 w-full rounded mb-6 focus:outline-none focus:border-blue-500">
+      <button onclick="login()" class="bg-blue-600 text-white w-full py-3 rounded font-bold hover:bg-blue-700 transition">Masuk</button>
+      <button onclick="window.location.href='index.html'" class="mt-4 text-blue-600 text-sm block w-full text-center hover:underline">Kembali ke Beranda</button>
     </div>
   </div>
 
   <div id="dashboard" class="hidden min-h-screen">
-    <div class="bg-blue-700 text-white p-4 flex justify-between items-center">
+    <div class="bg-blue-700 text-white p-4 flex justify-between items-center shadow-md">
       <h1 class="text-xl font-bold">Admin Dasbor</h1>
-      <div><span id="admin-name" class="mr-4 font-bold"></span><button onclick="logout()" class="bg-red-500 px-4 py-1 rounded">Keluar</button></div>
+      <div><span id="admin-name" class="mr-4 font-bold"></span><button onclick="logout()" class="bg-red-500 px-4 py-1 rounded text-sm font-bold shadow hover:bg-red-600">Keluar</button></div>
     </div>
     
     <div class="p-6">
-      <div class="bg-white rounded-xl shadow p-4 overflow-x-auto">
-        <table class="w-full text-left text-sm whitespace-nowrap">
-          <thead class="bg-gray-200">
-            <tr><th class="p-3">ID Ajuan</th><th class="p-3">Nama</th><th class="p-3">Institusi</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr>
+      <div class="bg-white rounded-xl shadow p-5 overflow-x-auto border">
+        <h3 class="font-bold text-lg mb-4 text-gray-800">Manajemen Data Ajuan</h3>
+        <table class="w-full text-left text-sm whitespace-nowrap border-collapse">
+          <thead class="bg-gray-100">
+            <tr class="text-gray-700 border-b"><th class="p-4 font-bold">ID Ajuan</th><th class="p-4 font-bold">Peneliti</th><th class="p-4 font-bold">Institusi</th><th class="p-4 font-bold">Status Utama</th><th class="p-4 font-bold">Aksi Dokumen</th></tr>
           </thead>
-          <tbody id="table-body"></tbody>
+          <tbody id="table-body" class="text-gray-600"></tbody>
         </table>
       </div>
     </div>
   </div>
 
   <script>
+    // Cek status sesi login saat halaman dimuat
     if(localStorage.getItem('admin_login') === 'true') {
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
@@ -47,39 +49,58 @@
       loadData();
     }
 
+    // REVISI: Logika Autentikasi Menggunakan Supabase (.maybeSingle)
     async function login() {
-      let u = document.getElementById('username').value; let p = document.getElementById('password').value;
-      const { data, error } = await supabase.from('admin_users').select('*').eq('username', u).eq('password', p).single();
+      let u = document.getElementById('username').value.trim(); 
+      let p = document.getElementById('password').value.trim();
+      
+      if(!u || !p) { Swal.fire('Peringatan', 'Username dan Password tidak boleh kosong', 'warning'); return; }
+      
+      const { data, error } = await supabase.from('admin_users').select('*').eq('username', u).eq('password', p).maybeSingle();
+      
+      if(error) { Swal.fire('Error', error.message, 'error'); return; }
+      
       if(data) {
-        localStorage.setItem('admin_login', 'true'); localStorage.setItem('admin_user', data.username);
+        localStorage.setItem('admin_login', 'true'); 
+        localStorage.setItem('admin_user', data.username);
         window.location.reload();
-      } else { Swal.fire('Error', 'Username / Password salah', 'error'); }
+      } else { 
+        Swal.fire('Akses Ditolak', 'Username atau Password salah!', 'error'); 
+      }
     }
 
     function logout() { localStorage.clear(); window.location.reload(); }
 
     async function loadData() {
       const { data, error } = await supabase.from('ajuan').select('*').order('created_at', { ascending: false });
-      if(!data) return;
+      if(error || !data) return;
       let tbody = document.getElementById('table-body'); tbody.innerHTML = '';
+      
+      if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">Belum ada data masuk</td></tr>'; return; }
+
       data.forEach(r => {
         let options = ['Menunggu Verifikasi', 'Menunggu Pembayaran', 'Diproses', 'Acc / Disetujui', 'Selesai', 'Selesai Lengkap', 'Ditolak']
           .map(o => `<option ${r.status===o?'selected':''}>${o}</option>`).join('');
         
         let links = ``;
-        if(r.link_permohonan) links += `<a href="${r.link_permohonan}" target="_blank" class="text-blue-500 underline mr-2">Berkas</a>`;
-        if(r.link_bayar) links += `<a href="${r.link_bayar}" target="_blank" class="text-green-500 underline mr-2">Bukti Bayar</a>`;
-        if(r.link_hasil) links += `<a href="${r.link_hasil}" target="_blank" class="text-purple-500 underline">Hasil</a>`;
+        if(r.link_permohonan) links += `<a href="${r.link_permohonan}" target="_blank" class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold mr-1 inline-block"><i class="fas fa-file-alt"></i> Berkas</a>`;
+        if(r.link_bayar) links += `<a href="${r.link_bayar}" target="_blank" class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold mr-1 inline-block"><i class="fas fa-wallet"></i> Bukti Bayar</a>`;
+        if(r.link_hasil) links += `<a href="${r.link_hasil}" target="_blank" class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-bold inline-block"><i class="fas fa-check"></i> Hasil</a>`;
 
-        tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${r.id_ajuan}</td><td class="p-3">${r.nama}</td><td class="p-3">${r.institusi}</td>
-          <td class="p-3"><select onchange="ubahStatus('${r.id_ajuan}', this.value)" class="border p-1 rounded bg-gray-50">${options}</select></td>
-          <td class="p-3">${links}</td></tr>`;
+        tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+          <td class="p-4 font-bold text-blue-800">${r.id_ajuan}</td>
+          <td class="p-4 font-semibold">${r.nama}</td>
+          <td class="p-4">${r.institusi}<br><span class="text-xs text-yellow-600 bg-yellow-50 px-1 rounded font-bold">${r.jenjang}</span></td>
+          <td class="p-4"><select onchange="ubahStatus('${r.id_ajuan}', this.value)" class="border border-gray-300 p-1.5 rounded bg-white font-medium text-sm text-gray-700 focus:outline-none">${options}</select></td>
+          <td class="p-4 whitespace-nowrap">${links ? links : '<span class="text-xs text-gray-400 italic">Tidak ada berkas</span>'}</td>
+        </tr>`;
       });
     }
 
     async function ubahStatus(id, newStatus) {
-      await supabase.from('ajuan').update({ status: newStatus }).eq('id_ajuan', id);
-      Swal.fire('Sukses', 'Status diperbarui', 'success');
+      const { error } = await supabase.from('ajuan').update({ status: newStatus }).eq('id_ajuan', id);
+      if(error) Swal.fire('Gagal', error.message, 'error');
+      else Swal.fire('Sukses', 'Status berhasil diperbarui', 'success');
     }
   </script>
 </body>
