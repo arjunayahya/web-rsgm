@@ -9,7 +9,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Memuat library utama Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Memuat konfigurasi koneksi Anda -->
   <script src="config.js"></script>
   
   <style>
@@ -53,6 +55,7 @@
       </div>
     </div>
 
+    <!-- BERANDA -->
     <div id="beranda" class="page-section active px-5 sm:px-10 -mt-6 relative z-10">
       <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-10 text-center border border-gray-100">
         <div class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full inline-block mb-3"><i class="fas fa-check-circle mr-1"></i> Terintegrasi</div>
@@ -93,6 +96,7 @@
       </div>
     </div>
 
+    <!-- AJUAN -->
     <div id="ajuan" class="page-section px-5 sm:px-10 pt-6">
       <h2 class="text-2xl font-bold text-blue-800 mb-1">Form Pengajuan</h2>
       <p class="text-sm text-gray-500 mb-6">Lengkapi data diri dan unggah dokumen persyaratan</p>
@@ -159,6 +163,7 @@
       </form>
     </div>
 
+    <!-- CEK STATUS -->
     <div id="cek-status" class="page-section px-5 sm:px-10 pt-6">
       <h2 class="text-2xl font-bold text-blue-800 mb-1">Lacak Status</h2>
       <p class="text-sm text-gray-500 mb-6">Masukkan ID Ajuan Anda</p>
@@ -179,6 +184,7 @@
       </div>
     </div>
 
+    <!-- PANDUAN -->
     <div id="panduan" class="page-section px-5 sm:px-10 pt-6 text-gray-700">
       <h2 class="text-2xl font-bold text-blue-800 mb-6">Panduan Penelitian</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -197,6 +203,7 @@
       </div>
     </div>
 
+    <!-- BOTTOM NAV -->
     <div class="bottom-nav" id="bottom-nav">
       <div class="nav-item active" onclick="switchTab('beranda')"><i class="fas fa-home"></i>Beranda</div>
       <div class="nav-item" onclick="switchTab('ajuan')"><i class="fas fa-edit"></i>Ajuan</div>
@@ -237,9 +244,10 @@
 
     async function uploadSupabase(idAjuan, type, file) {
       const path = `${idAjuan}/${type}_${Date.now()}_${file.name}`;
-      const { data, error } = await supabase.storage.from('berkas').upload(path, file);
+      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
+      const { data, error } = await supabaseClient.storage.from('berkas').upload(path, file);
       if(error) throw error;
-      const { data: urlData } = supabase.storage.from('berkas').getPublicUrl(path);
+      const { data: urlData } = supabaseClient.storage.from('berkas').getPublicUrl(path);
       return urlData.publicUrl;
     }
 
@@ -262,7 +270,8 @@
         let bln = ("0" + (date.getMonth() + 1)).slice(-2);
         let prefix = `RSGM-${date.getFullYear()}${bln}-`;
         
-        let { data: lastData } = await supabase.from('ajuan').select('id_ajuan').like('id_ajuan', `${prefix}%`).order('created_at', {ascending: false}).limit(1);
+        // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
+        let { data: lastData } = await supabaseClient.from('ajuan').select('id_ajuan').like('id_ajuan', `${prefix}%`).order('created_at', {ascending: false}).limit(1);
         let urut = 1;
         if(lastData && lastData.length > 0) {
           let parts = lastData[0].id_ajuan.split('-');
@@ -280,7 +289,7 @@
         let lCV = await uploadSupabase(idAjuan, 'cv', fCV);
 
         showLoader('Menyimpan ke Database...');
-        let { error } = await supabase.from('ajuan').insert([{
+        let { error } = await supabaseClient.from('ajuan').insert([{
           id_ajuan: idAjuan, nama: document.getElementById('inp_nama').value,
           institusi: document.getElementById('inp_institusi').value, jenjang: document.getElementById('inp_jenjang').value,
           afiliasi: document.querySelector('input[name="afiliasi"]:checked').value, email: document.getElementById('inp_email').value,
@@ -302,7 +311,8 @@
       let id = document.getElementById('inp_search').value.trim();
       if(!id) return;
       showLoader('Mencari...');
-      const { data, error } = await supabase.from('ajuan').select('*').eq('id_ajuan', id).maybeSingle();
+      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
+      const { data, error } = await supabaseClient.from('ajuan').select('*').eq('id_ajuan', id).maybeSingle();
       hideLoader();
       
       let box = document.getElementById('result-status');
@@ -335,7 +345,8 @@
         if(type === 'bayar') { updateData.link_bayar = link; updateData.status = 'Diproses'; updateData.tgl_bayar = new Date().toISOString(); }
         if(type === 'hasil') { updateData.link_hasil = link; updateData.status_hasil = 'Menunggu Verifikasi'; updateData.tgl_hasil = new Date().toISOString(); }
         
-        await supabase.from('ajuan').update(updateData).eq('id_ajuan', id);
+        // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
+        await supabaseClient.from('ajuan').update(updateData).eq('id_ajuan', id);
         hideLoader(); Swal.fire('Sukses','Berhasil diupload','success'); cariStatus();
       } catch(e) { hideLoader(); Swal.fire('Error', e.message, 'error'); }
     }
