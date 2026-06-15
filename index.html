@@ -242,14 +242,20 @@
       document.getElementById('estimasi_biaya').value = 'Rp ' + b.toLocaleString('id-ID');
     }
 
-    async function uploadSupabase(idAjuan, type, file) {
-      const path = `${idAjuan}/${type}_${Date.now()}_${file.name}`;
-      // REVISI: Menggunakan variabel pemanggilan terstandar supabaseClient
-      const { data, error } = await supabaseClient.storage.from('berkas').upload(path, file);
-      if(error) throw error;
-      const { data: urlData } = supabaseClient.storage.from('berkas').getPublicUrl(path);
-      return urlData.publicUrl;
-    }
+   async function uploadSupabase(idAjuan, type, file) {
+  // Mengambil ekstensi file saja (misal: .pdf, .jpg)
+  const fileExtension = file.name.split('.').pop();
+  
+  // REVISI AMAN: Mengubah nama file menjadi bersih (contoh: RSGM-202606-0001/permohonan_1718432040.pdf)
+  // Cara ini menjamin tidak akan ada error "invalid path" meskipun file asli Anda penuh spasi atau tanda kurung.
+  const cleanPath = `${idAjuan}/${type}_${Date.now()}.${fileExtension}`;
+  
+  const { data, error } = await _supabaseApp.storage.from('berkas').upload(cleanPath, file);
+  if(error) throw error;
+  
+  const { data: urlData } = await _supabaseApp.storage.from('berkas').getPublicUrl(cleanPath);
+  return urlData.publicUrl;
+}
 
     async function submitAjuan(e) {
       e.preventDefault();
