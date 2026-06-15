@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - RSGM Soelastri</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body class="bg-gray-100">
+
+  <div id="login-screen" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-96 text-center">
+      <h2 class="text-2xl font-bold mb-6">Login Admin</h2>
+      <input type="text" id="username" placeholder="Username" class="border p-3 w-full rounded mb-4">
+      <input type="password" id="password" placeholder="Password" class="border p-3 w-full rounded mb-6">
+      <button onclick="login()" class="bg-blue-600 text-white w-full py-3 rounded font-bold">Masuk</button>
+      <button onclick="window.location.href='index.html'" class="mt-4 text-blue-600 text-sm">Kembali ke Beranda</button>
+    </div>
+  </div>
+
+  <div id="dashboard" class="hidden min-h-screen">
+    <div class="bg-blue-700 text-white p-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Admin Dasbor</h1>
+      <div><span id="admin-name" class="mr-4 font-bold"></span><button onclick="logout()" class="bg-red-500 px-4 py-1 rounded">Keluar</button></div>
+    </div>
+    
+    <div class="p-6">
+      <div class="bg-white rounded-xl shadow p-4 overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead class="bg-gray-200">
+            <tr><th class="p-3">ID Ajuan</th><th class="p-3">Nama</th><th class="p-3">Institusi</th><th class="p-3">Status</th><th class="p-3">Aksi</th></tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(localStorage.getItem('admin_login') === 'true') {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('admin-name').innerText = localStorage.getItem('admin_user');
+      loadData();
+    }
+
+    async function login() {
+      let u = document.getElementById('username').value; let p = document.getElementById('password').value;
+      const { data, error } = await supabase.from('admin_users').select('*').eq('username', u).eq('password', p).single();
+      if(data) {
+        localStorage.setItem('admin_login', 'true'); localStorage.setItem('admin_user', data.username);
+        window.location.reload();
+      } else { Swal.fire('Error', 'Username / Password salah', 'error'); }
+    }
+
+    function logout() { localStorage.clear(); window.location.reload(); }
+
+    async function loadData() {
+      const { data, error } = await supabase.from('ajuan').select('*').order('created_at', { ascending: false });
+      if(!data) return;
+      let tbody = document.getElementById('table-body'); tbody.innerHTML = '';
+      data.forEach(r => {
+        let options = ['Menunggu Verifikasi', 'Menunggu Pembayaran', 'Diproses', 'Acc / Disetujui', 'Selesai', 'Selesai Lengkap', 'Ditolak']
+          .map(o => `<option ${r.status===o?'selected':''}>${o}</option>`).join('');
+        
+        let links = ``;
+        if(r.link_permohonan) links += `<a href="${r.link_permohonan}" target="_blank" class="text-blue-500 underline mr-2">Berkas</a>`;
+        if(r.link_bayar) links += `<a href="${r.link_bayar}" target="_blank" class="text-green-500 underline mr-2">Bukti Bayar</a>`;
+        if(r.link_hasil) links += `<a href="${r.link_hasil}" target="_blank" class="text-purple-500 underline">Hasil</a>`;
+
+        tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${r.id_ajuan}</td><td class="p-3">${r.nama}</td><td class="p-3">${r.institusi}</td>
+          <td class="p-3"><select onchange="ubahStatus('${r.id_ajuan}', this.value)" class="border p-1 rounded bg-gray-50">${options}</select></td>
+          <td class="p-3">${links}</td></tr>`;
+      });
+    }
+
+    async function ubahStatus(id, newStatus) {
+      await supabase.from('ajuan').update({ status: newStatus }).eq('id_ajuan', id);
+      Swal.fire('Sukses', 'Status diperbarui', 'success');
+    }
+  </script>
+</body>
+</html>
